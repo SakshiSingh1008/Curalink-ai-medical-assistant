@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: curalink-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - curalink
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: curalink-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/curalink
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+      PUBMED_API_KEY: ${PUBMED_API_KEY:-}
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: production
+    depends_on:
+      - mongo
+    networks:
+      - curalink
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: curalink-ui
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - curalink
+
+networks:
+  curalink:
+    driver: bridge
+
+volumes:
+  mongo_data:
