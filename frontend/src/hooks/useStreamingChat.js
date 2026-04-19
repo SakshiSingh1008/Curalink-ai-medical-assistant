@@ -29,7 +29,7 @@ export function useStreamingChat({ sessionId, patientContext, addMessage, onRese
     let fullText = '';
 
     try {
-      const response = await fetch(`${API_BASE}/chat/stream`, {
+      const response = await fetch(`${API_BASE}/api/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,7 +109,7 @@ export function useStreamingChat({ sessionId, patientContext, addMessage, onRese
 
       // Fallback to standard REST API
       try {
-        const res = await fetch(`${API_BASE}/chat`, {
+        const res = await fetch(`${API_BASE}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
